@@ -1,0 +1,51 @@
+@startuml modules_backend
+
+skinparam packageStyle rectangle
+skinparam arrowColor Black
+skinparam backgroundColor AliceBlue
+skinparam shadowing true
+skinparam roundcorner 10
+skinparam linestyle ortho
+skinparam Padding 30
+skinparam defaultFontSize 35
+
+' Set the layout to left-to-right direction
+left to right direction
+
+' Hauptpaket Backend
+package "Backend Modules" as Backend {
+    package "Core Utilities" {
+        [Database Interface] as DB
+        [Logging] as Logging
+        [Security] as Security
+        [OpenStack Interface] as OpenStackSDK
+    }
+
+    package "Domains" {
+        [User] as User
+        [Deployment] as Deploy
+        [Template] as Template
+    }
+    [FastAPI] as FastAPI
+}
+
+package "Monitoring" as Monitoring {
+    [Prometheus] as Prometheus
+}
+
+[SQLite] as SQLite <<Database>>
+[OpenStack] as OpenStack <<external>>
+
+' Relationships
+[Logging] --> [Prometheus]: Exporter API
+[Security] --> [OpenStack]: OAuth 2 Authentication
+[OpenStackSDK] --> [OpenStack]: VM Deployment
+DB --> [SQLite]: Store/Retrieve Data
+FastAPI <-- [Domains]: expose functions as REST API
+[Deploy] --> [OpenStackSDK]: Deploy VM
+[Template] --> [DB]: Store/Retrieve Template Data
+[User] --> [DB]: Store/Retrieve User Data
+[FastAPI] --> [Logging]: Log Events
+[FastAPI] <-- [Security]: Authenticate Actions
+
+@enduml
